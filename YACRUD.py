@@ -14,15 +14,19 @@ This function greets the user and begins the entire program
 It allows the program to branch to other functions
 '''
 
-logDict = {}
+parentDict = {}
+childDict = {}
+entryCounter = 1
 
 def selectionScreen():
      
     print("Welcome to your personal logging program!\
         \nYou are welcome to log whatever you desire!")
     
-###have choiceLabel print back user choice for both user confirmation and error handling
+###have choiceLabel print back user choice for both user confirmation and error handling###
  #   choiceLabel = 
+ ###refactor lengthy try statement. maybe 1,2,3,4,5?###
+ ###could use or operators then###
     while True:
 
         choice = input("[A]dd new entry  \
@@ -36,62 +40,62 @@ def selectionScreen():
 
         try: 
             if choice == 'a':
-                createDict(logDict)
+                createDict(parentDict)
             elif choice == 's':
-                if logDict.isinstance():
-                    searchLog(logDict)
+                if parentDict:
+                    searchLog(parentDict)
             elif choice == 'c':
-                if logDict.isinstance():
-                    countLog(logDict)
+                if parentDict:
+                    countLog(parentDict)
             elif choice == 'p':
-                if logDict.isinstance():
-                    printLog(logDict)
+                if parentDict:
+                    printLog(parentDict)
             elif choice == 'e':
-                if logDict.isinstance():
-                    exportLog(logDict)
+                if parentDict:
+                    exportLog(parentDict)
             elif choice == 'q':
                 sys.exit("Goodbye! See you next time!")
             elif choice == '':
                 print("Please select a valid response.")
                 choice
             elif choice == 'd':
-                return
+                debug()
         except AttributeError:
             print(f"Your choice does not exist yet! Come back later!")
 
+
 '''
-This function will take user input to create a dictionary. 
+This function will take user input to create a child dictionary which is then nested in a parent dictionary. 
 Each entry is then assigned a key, and value while maintaining a generic labeling scheme.
 The Amount Logged will handle an exception if the user inputs a string as it's for later tabulation.
 The Measurement Unit has a "pseudo execption handling" if the user inputs an integer.
 Each added entry will be printed to the user afterwards for good HCI
 '''
 
-###fix quit in this function###
+###add quit in this function###
 
-def createDict(logDict):
+def createDict(parentDict):
 
-        logEntry = {}
-        logEntry["Entry"] = input("Please enter what you would like to log in a list. \
+        childDict = {}
+  
+        global entryCounter
+
+        childDict["Entry"] = input("Please enter what you would like to log in a list. \
                         \nWhen you are finished, press enter/return twice to continue to the next portion. \
-                        \nYou can always quit by entering Q \
                         \nEnter Entry to log here: \
                         \n"
                                 ).lower().title()
-        
-        if logEntry == ('Q'):
-            sys.exit("Goodbye! See you next time!")
 
         while True:
 
-            logAmount = input("\nEnter the amount of the Entry(s) you are logging. \
+            logAmount = input("\nEnter the amount for the item you are logging. \
                     \nThis needs to be a valid numerical digit \
-                    \nEnter the amount of the Entry(s):"
+                    \nEnter the amount for the entry:"
                     "\n"
                             )
             
             try: 
-                logEntry["Amount Logged"] = int(logAmount)
+                childDict["Amount Logged"] = int(logAmount)
                 break
             except ValueError as badInput:
                     print(f"{badInput} is not a valid number. \
@@ -99,7 +103,7 @@ def createDict(logDict):
 
         while True:
             
-            logEntry["Measurement Unit"] = input("Enter the unit measurement if applicable. \
+            childDict["Measurement Unit"] = input("Enter the unit measurement if applicable. \
         \nExample: oz, miles, inches, etc. \
         \nThis entry must be a word. \
         \nIf not applicable, press enter/return to skip \
@@ -107,13 +111,13 @@ def createDict(logDict):
         \n"
             )
 
-            logUnit = logEntry["Measurement Unit"]
+            logUnit = childDict["Measurement Unit"]
 
             if logUnit == '':
                 break
             
             if logUnit.isalpha():
-                logEntry["Measurement Unit"] = logUnit
+                childDict["Measurement Unit"] = logUnit
                 break
             else:
                 print(f"{logUnit} is invalid. \
@@ -121,67 +125,73 @@ def createDict(logDict):
                     \n")
                 continue
 
-
-        logDict.update(logEntry)
-
         if logUnit == '':
-            print(f"{logEntry['Amount Logged']} {logEntry['Entry']} have been added to the log!")
+            print(f"{childDict['Amount Logged']} {childDict['Entry']} have been added to the log!")
         else:
-            print(f"{logEntry['Entry']}: {logEntry['Amount Logged']} {logEntry['Measurement Unit']} have been added to the log!")
+            print(f"{childDict['Entry']}: {childDict['Amount Logged']} {childDict['Measurement Unit']} have been added to the log!")
 
+        parentDict[entryCounter] = childDict
+        entryCounter += 1
 
+        return parentDict
 
-        return logDict
-
-
-##sanity check for createDict function##
-#logDict = {}
-#createDict(logDict)
-# pprint.pprint(logDict)
-
-def searchLog(logDict):
+def searchLog(parentDict):
     print("Feature not implemented! \
         \nCheck back later! \
         \nReturning you to the selection screen \
         \n")
     return
 
-def countLog(logDict):
+def countLog(parentDict):
     print("Feature not implemented! \
         \nCheck back later! \
         \nReturning you to the selection screen \
         \n")
     return
+
+def mergeParent(parentDict):
+
+    mergedDict = {}
+    for innerDicts in parentDict:
+        innerData = list(innerDicts.values())[0]
+        fullLog = innerData["Full Log"]
+        mergedDict[fullLog] = innerData
+    return mergedDict
+
+
 
 ##actually do this one##
-def printLog(logDict):
+def printLog(parentDict):
+    ###placeholder###
+    print("broken")
+    return
+
+#     print("Welcome to the printing function! \
+#           \nFrom here you can display on the terminal what you have logged thus far")
+#     printChoice = input("Make your selection:  \
+#                     \nPrint [E]ntries \
+#                     \nMore to come!").lower
     
-    logList = []
-    if not logDict:
-        return logList
-    for keys, values in logDict.items():
-        keys = keys.get
-        dictAmounts = list(logDict.items())
-        logList = list(dictEntries,dictAmounts)
+#     if printChoice == 'e':
+#         pprint.pprint(parentDict["Entry"])
 
-    return logList
+#     printEntry
 
-logList = []
-debugPrintLog = printLog(logDict)
-print(logList)
-
-def exportLog(logDict):
+def exportLog(parentDict):
     print("Feature not implemented! \
         \nCheck back later! \
         \nReturning you to the selection screen \
         \n")
     return
 
+def debug():
+###debug section###
 
+###createDict sanity check###
+    pprint.pprint(parentDict)
+
+##mergeParent sanity check###
+    mergedDict = {}
+    pprint.pprint(mergedDict)
 
 selectionScreen()
-###debug section###
-##printLog sanity check##
-logList = []
-debugPrintLog = printLog(logDict)
-print(logList)
