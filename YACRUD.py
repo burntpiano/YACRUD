@@ -1,7 +1,7 @@
 '''
 INF360 - Programming in Python
 
-Midterm Project
+Final Project
 
 I, Rory Blair , affirm that the work submitted for this assignment is entirely my own. I have not engaged in any form of academic dishonesty, including but not limited to cheating, plagiarism, or the use of unauthorized materials. This includes, but is not limited to, the use of resources such as Chegg, MyCourseHero, StackOverflow, ChatGPT, or other AI assistants, except where explicitly permitted by the instructor. I have neither provided nor received unauthorized assistance and have accurately cited all sources in adherence to academic standards. I understand that failing to comply with this integrity statement may result in consequences, including disciplinary actions as determined by my course instructor and outlined in institutional policies. By signing this statement, I acknowledge my commitment to upholding the principles of academic integrity.
 '''
@@ -14,9 +14,19 @@ These inventory changes are then pushed to my Raspberry Pi Zero 2 W based Magic 
 Currently it only stores in memory but the entries can be copied to the clipboard and pasted elsewhere for long term storage.
 '''
 
-import sys, pathlib, shutil, os, dateutils
+import sys, shutil, os
 
 primaryDict = {}
+
+###Global###
+from pathlib import Path
+# parentDir = Path.cwd()
+# subDir = os.mkdir(parentDir)
+# saveDir = Path(f"{parentDir}/'Saved Logs'")
+from datetime import date
+d = date.today()
+USYearMonth = d.strftime("%Y-%m")
+currentDay = d.strftime("%A")
 
 '''
 This is the selection screen where the user can choose from the 3 currently available features.
@@ -47,6 +57,8 @@ def selectionScreen():
             printLog(primaryDict)
         elif choice == 's':
             saveLog()
+        elif choice == 'l':
+            loadLog(saveDir, logName, logFile)
         elif choice == 'q':
             sys.exit("Goodbye! See you next time!")
         else:
@@ -223,14 +235,10 @@ def deleteData(primaryDict):
 
 def saveLog(printedLog):
 ###check this one. new function###
-###consider making nested directories for each month. lots of logs will be cumbersome when loading###
-    from pathlib import Path
-    from datetime import date
-    parentDir = Path.cwd()
-    saveDir = Path(f"{parentDir}/'Saved Logs'")
-    localTime = date.today()
-    logName = (f"'Log from {localTime}'.log")
 
+    from pathlib import Path
+    saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
+    saveDir.mkdir(parents=True, exist_ok=True)
     saveInput = input("Save your log so far?: \
                       \n[Y]es \
                       \n[N]o \
@@ -238,63 +246,78 @@ def saveLog(printedLog):
 
     while True:
         if saveInput == 'y':
-            with open(logName, 'w') as logFile:
-                logFile.write(printedLog)
-                print(f"{logName} saved.")
-                logFile.close()
-                break
-            if f"{logName}" in saveDir:
-                if saveInput == 'y':
-                    with open(logName, 'a') as logFile:
-                        logFile.write(printedLog)
-                        print(f"{logName} was added to.")
-                        logFile.close()
-                        break
-        if saveInput == 'n':
-            return
-        else:
-            print("Invalid choice")
-            break
-    return logName, saveDir, logFile
-
-def loadLog(saveDir, logName, logFile):
-###check this one###
-###consider second comment in above function###
-    from pathlib import Path
-    parentDir = Path.cwd()
-    saveDir = Path(f"{parentDir}/'Saved Logs'")
-    saveDir.glob('*.log')
-    list(saveDir.glob('*.txt'))
- 
-    loadInput = input("Select a log to load or go [b]ack to selection screen: \
-                      \n").lower()
-
-    while True:
-        if loadInput == logName:
-            if logFile in saveDir:
-                confirm = input("Is this the correct log?: \
-                                \n[Y]es \
-                                \n[N]o \
-                                \n[B]ack \
-                                \n").lower()
-                print(logName)
-                if confirm == 'y':
-                    open(logFile, 'a')
-                    return logFile
-                if confirm == 'n':
+            userLogName = input ("Use current day as the log name? \
+                                 \n[Y]es \
+                                 \n[N]o \
+                                 \n").lower()
+            if userLogName == 'y':
+                userLogInput = ("Type what you would like to save this log as: \
+                               \n")
+                userLogFile = Path(saveDir / f"{userLogInput}.log")
+                userLogFile.write_text(printedLog, 'w')
+                print(f"Log saved as {userLogInput} in {saveDir}.")
+                if Path(userLogFile) in saveDir:
+                    userLogFile.write_text(printedLog, 'a')
+                    print(f"Log ammended and saved as {userLogInput} in {saveDir}")
                     break
-                if confirm == 'b':
-                    return
-                else:
-                    print("Invalid choice")
-                    continue
-            if logName not in saveDir:
-                print(f"{loadInput} not found.")
+            if userLogName == 'n':
+                logDateName = {currentDay}
+                dateLogFile = Path(saveDir / f"{logDateName}.log")
+                print(f"Log saved as {dateLogFile} in {saveDir}.")
                 break
-        if loadInput == 'b':
+        if saveInput == 'n':
+            print("Returning you to the selection screen.")
             return
         else:
-            print("Invalid choice")
+            print("Choice is invalid.")
+    logFile = userLogFile, dateLogFile
+    return saveDir, logFile
+
+def loadLog():
+    
+
+# def loadLog(saveDir, logFile):
+# ###check this one###
+ 
+#     loadInput = input("Select a log to load or go [b]ack to selection screen: \
+#                       \n").lower()
+    
+#     from pathlib import Path
+
+#     saveDir = Path(f"./Saved Logs/{logFile}")
+#     saveDir.glob('*.log')
+#     list(saveDir.glob('*.log'))
+#     logContents = logFile.read()
+
+#     while True:
+#         if loadInput == logFile:
+#             if logFile in saveDir:
+#                 confirm = input("Is this the correct log?: \
+#                                 \n[Y]es \
+#                                 \n[N]o \
+#                                 \n[B]ack \
+#                                 \n").lower()
+#                 ###maybe only print 5 at a time for long lists?###
+#                 # for i in logContents:
+#                 #     i = range(len(logContents)0, 5)
+#                 print(logContents)
+#                 if confirm == 'y':
+#                     open(logFile, 'a')
+#                     return logFile
+#                 if confirm == 'n':
+#                     break
+#                 if confirm == 'b':
+#                     return
+#                 else:
+#                     print("Invalid choice")
+#                     continue
+#             if logFile not in saveDir:
+#                 print(f"{loadInput} not found.")
+#                 break
+#         if loadInput == 'b':
+#             return
+#         else:
+#             print("Invalid choice")
 '''
 Finally, it all executes from a single function.
 I went through several different revisions of differing complexity before deciding on this.
