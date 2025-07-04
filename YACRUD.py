@@ -302,26 +302,33 @@ def saveLog():
 
 def loadLog(primaryDict):
 
-    saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
-    logList = list(saveDir.glob('*.json'))
-    logFile = r"*.json"
+    logFiles = list(saveDir.glob('*.json'))
+
+    if not logFiles:
+        print("No logs found")
 
     print("Available logs to load.")
-    for index, logFile in enumerate(logList, 1):
-        print(f"[{index}] {logFile}")
-        loadFile = f"{index[logFile]}"
+    for index, file in enumerate(logFiles, 1):
+        print(f"[{index}] {file}")
 
-    while True:
-        try:
-            loadInput = input("Enter the attached number of the list you would like to load: \
-                            \n")
-            if loadInput == index in loadFile:
-                with open(logFile, 'r') as lf:
-                    primaryDict = json.load(lf)
-            print(f"SANITY CHECK: {primaryDict}, {logFile}")
-        except FileNotFoundError:
-            print("Log not found. Please try again.")
-    
+
+        while True:
+            try:
+                loadInput = int(input("Enter the attached number of the list you would like to load: \
+                                \n"))
+                loadedFile = logFiles[loadInput - 1]
+                with loadedFile.open('r') as lf:
+                    print(f"SANITY CHECK: {loadedFile}")
+                    json.load(lf)
+                    json.dump(primaryDict, lf, indent=4)
+                    print(f"SANITY CHECK: {primaryDict}")
+                    return primaryDict
+            except FileNotFoundError:
+                print("Log not found. Please try again.")
+                continue
+
+    with lf.open('w') as df:
+
         return primaryDict
 
 # def loadLog():
