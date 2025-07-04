@@ -44,6 +44,7 @@ def selectionScreen():
                         \n[D]elete entry \
                         \n[P]rint entries \
                         \n[S]ave log \
+                        \n[L]oad Log \
                         \n[Q]uit \
                         \nEnter your choice here:\
                         \n"
@@ -58,7 +59,7 @@ def selectionScreen():
         elif choice == 's':
             saveLog()
         elif choice == 'l':
-            loadLog(saveDir, logName, logFile)
+            loadLog(saveDir)
         elif choice == 'q':
             sys.exit("Goodbye! See you next time!")
         else:
@@ -179,7 +180,7 @@ def duplicateCheck(primaryDict, logDict):
         'Measurement Unit': logDict['Measurement Unit']
     }
     
-    return primaryDict, logDict, duplicateCounter
+    return primaryDict, logDict
 
 
 def printLog(primaryDict):
@@ -188,9 +189,9 @@ def printLog(primaryDict):
     for key, value in primaryDict.items():
         sep = " // "
         print(f"{key}{sep}{value}")
+        global printedLog
         printedLog = f"{key}{sep}{value}"
-    return printedLog
-
+    return
 
 '''
 This is where users can delete their entries if they'd like.
@@ -201,6 +202,7 @@ Users can also back out of data deletion before it's completed.
 def deleteData(primaryDict):
 
     printLog(primaryDict)
+    print(printedLog)
 
     while True:
 
@@ -233,12 +235,16 @@ def deleteData(primaryDict):
             print("Invalid choice.")
             continue
 
-def saveLog(printedLog):
+def saveLog():
 ###check this one. new function###
 
+    printLog(primaryDict)
+
     from pathlib import Path
+    global logFile, saveDir
     saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
     saveDir.mkdir(parents=True, exist_ok=True)
+
     saveInput = input("Save your log so far?: \
                       \n[Y]es \
                       \n[N]o \
@@ -250,17 +256,20 @@ def saveLog(printedLog):
                                  \n[Y]es \
                                  \n[N]o \
                                  \n").lower()
-            if userLogName == 'y':
-                userLogInput = ("Type what you would like to save this log as: \
+            if userLogName == 'n':
+                userLogInput = input("Type what you would like to save this log as: \
                                \n")
                 userLogFile = Path(saveDir / f"{userLogInput}.log")
-                userLogFile.write_text(printedLog, 'w')
-                print(f"Log saved as {userLogInput} in {saveDir}.")
-                if Path(userLogFile) in saveDir:
-                    userLogFile.write_text(printedLog, 'a')
-                    print(f"Log ammended and saved as {userLogInput} in {saveDir}")
-                    break
-            if userLogName == 'n':
+                if not os.path.exists(userLogFile):
+                    userLogFile.write_text(printedLog)
+                    print(f"Log saved as {userLogInput} in {saveDir}.")
+                if os.path.exists(userLogFile):
+                    with userLogFile.open('a', encoding="utf-8") as ufl:
+                        ufl.write(f"\n{printedLog}")
+                        print(f"Log ammended and saved as {userLogInput} in {saveDir}")
+                        ufl.close()
+                        break
+            if userLogName == 'y':
                 logDateName = {currentDay}
                 dateLogFile = Path(saveDir / f"{logDateName}.log")
                 print(f"Log saved as {dateLogFile} in {saveDir}.")
@@ -270,12 +279,30 @@ def saveLog(printedLog):
             return
         else:
             print("Choice is invalid.")
-    logFile = userLogFile, dateLogFile
-    return saveDir, logFile
+            
+    return saveDir, userLogFile
 
-def loadLog():
+def duplicateLogCheck(primaryDict, logDict, saveDir, userLogFile):
+
+    if os.path.exists(userLogFile):
+        with userLogFile.open() as 
+
+def loadLog(saveDir, logFile):
+
+    while True:
+        if logFile in saveDir:
+            break
+        else:
+            print("You do not have any entries to load.")
+            return
     
-
+    loadInput = input("Select a log to load or go [b]ack to the selection screen: \
+                      \n")
+    
+    saveDir.glob('*.log')
+    logContents = list(saveDir.glob('*.log'))
+    print(logContents)
+    print(logFile)
 # def loadLog(saveDir, logFile):
 # ###check this one###
  
