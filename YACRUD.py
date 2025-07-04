@@ -14,9 +14,7 @@ These inventory changes are then pushed to my Raspberry Pi Zero 2 W based Magic 
 Currently it only stores in memory but the entries can be copied to the clipboard and pasted elsewhere for long term storage.
 '''
 
-import sys, shutil, os
-
-primaryDict = {}
+import sys, shutil, os, json, pprint
 
 ###Global###
 from pathlib import Path
@@ -26,7 +24,16 @@ from pathlib import Path
 from datetime import date
 d = date.today()
 USYearMonth = d.strftime("%Y-%m")
-currentDay = d.strftime("%A")
+currentDay = d.strftime("%A %d")
+saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
+
+# logList = list(saveDir.glob('*.json'))
+# logFile = Path(saveDir / r"*.json")
+# try:
+#     with open(f"{logFile}.json", 'r') as file:
+#         primaryDict = json.load(file)
+# except FileNotFoundError:
+primaryDict = {}
 
 '''
 This is the selection screen where the user can choose from the 3 currently available features.
@@ -59,7 +66,7 @@ def selectionScreen():
         elif choice == 's':
             saveLog()
         elif choice == 'l':
-            loadLog(saveDir)
+            loadLog(primaryDict)
         elif choice == 'q':
             sys.exit("Goodbye! See you next time!")
         else:
@@ -241,7 +248,6 @@ def saveLog():
     printLog(primaryDict)
 
     from pathlib import Path
-    global logFile, saveDir
     saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
     saveDir.mkdir(parents=True, exist_ok=True)
 
@@ -250,59 +256,107 @@ def saveLog():
                       \n[N]o \
                       \n").lower()
 
-    while True:
+
+    try:
         if saveInput == 'y':
             userLogName = input ("Use current day as the log name? \
-                                 \n[Y]es \
-                                 \n[N]o \
-                                 \n").lower()
+                                \n[Y]es \
+                                \n[N]o \
+                                \n").lower()
+            if userLogName == 'y':
+                fileName = currentDay
+                logFile = Path(saveDir / f"{fileName}.json")
+                with logFile.open('w') as ldf:
+                    json.dump(primaryDict, ldf, indent=4)
+                    pprint.pprint("Log saved as " f"{fileName} in {saveDir}"".")
+                if isinstance(logFile, dict):
+                    logFile.append(primaryDict)
             if userLogName == 'n':
                 userLogInput = input("Type what you would like to save this log as: \
-                               \n")
-                userLogFile = Path(saveDir / f"{userLogInput}.log")
-                if not os.path.exists(userLogFile):
-                    userLogFile.write_text(printedLog)
-                    print(f"Log saved as {userLogInput} in {saveDir}.")
-                if os.path.exists(userLogFile):
-                    with userLogFile.open('a', encoding="utf-8") as ufl:
-                        ufl.write(f"\n{printedLog}")
-                        print(f"Log ammended and saved as {userLogInput} in {saveDir}")
-                        ufl.close()
-                        break
-            if userLogName == 'y':
-                logDateName = {currentDay}
-                dateLogFile = Path(saveDir / f"{logDateName}.log")
-                print(f"Log saved as {dateLogFile} in {saveDir}.")
-                break
-        if saveInput == 'n':
-            print("Returning you to the selection screen.")
-            return
-        else:
-            print("Choice is invalid.")
+                            \n")
+                fileName = userLogInput
+                logFile = Path(saveDir / f"{fileName}.json")
+                with logFile.open('w') as lnf:
+                        json.dump(primaryDict, lnf, indent=4)
+                        print(f"Log saved as {userLogInput} in {saveDir}.")
+                #     userLogFile = Path(saveDir / f"{userLogInput}.log")
+                #     if not os.path.exists(userLogFile):
+                #         userLogFile.write_text(printedLog)
+                #         print(f"Log saved as {userLogInput} in {saveDir}.")
+                #     if os.path.exists(userLogFile):
+                #         with userLogFile.open('a', encoding="utf-8") as ufl:
+                #             ufl.write(f"\n{printedLog}")
+                #             print(f"Log ammended and saved as {userLogInput} in {saveDir}")
+                #             ufl.close()
+                #             break
+            if saveInput == 'n':
+                print("Returning you to the selection screen.")
+                return
+    except FileNotFoundError:
+        print("Lemme figure this one out real quick.")
+
+        fileName = userLogInput, currentDay
+        logFile = Path(saveDir / f"{fileName}.json")
             
-    return saveDir, userLogFile
+    return saveDir, logFile
 
-def duplicateLogCheck(primaryDict, logDict, saveDir, userLogFile):
+def loadLog(primaryDict):
 
-    if os.path.exists(userLogFile):
-        with userLogFile.open() as 
+    saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
+    logList = list(saveDir.glob('*.json'))
+    logFile = r"*.json"
 
-def loadLog(saveDir, logFile):
+    print("Available logs to load.")
+    for index, logFile in enumerate(logList, 1):
+        print(f"[{index}] {logFile}")
+        loadFile = f"{index[logFile]}"
 
     while True:
-        if logFile in saveDir:
-            break
-        else:
-            print("You do not have any entries to load.")
-            return
+        try:
+            loadInput = input("Enter the attached number of the list you would like to load: \
+                            \n")
+            if loadInput == index in loadFile:
+                with open(logFile, 'r') as lf:
+                    primaryDict = json.load(lf)
+            print(f"SANITY CHECK: {primaryDict}, {logFile}")
+        except FileNotFoundError:
+            print("Log not found. Please try again.")
     
-    loadInput = input("Select a log to load or go [b]ack to the selection screen: \
-                      \n")
+        return primaryDict
+
+# def loadLog():
+        
+#     saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
+#     logList = list(saveDir.glob('*.json'))
+
+#     print("Available logs to load.")
+#     for index, logFile in enumerate(logList, 1):
+#         print(f"[{index}] {logFile}")
+
+#     while True:
+#         try:
+#             if logFile.exists():
+#                 loadInput = int(input("Enter the attached number of the list you would like to load: \
+#                                 \n"))
+#                 with open(loadInput, 'r') as lf:
+#                     logFile.read()
+#         except FileNotFoundError:
+#             print("Log not found. Please try again.")
+
+#     while True:
+#         if logFile in saveDir:
+#             break
+#         else:
+#             print("You do not have any entries to load.")
+#             return
     
-    saveDir.glob('*.log')
-    logContents = list(saveDir.glob('*.log'))
-    print(logContents)
-    print(logFile)
+#     loadInput = input("Select a log to load or go [b]ack to the selection screen: \
+#                       \n")
+    
+#     saveDir.glob('*.log')
+#     logContents = list(saveDir.glob('*.log'))
+#     print(logContents)
+#     print(logFile)
 # def loadLog(saveDir, logFile):
 # ###check this one###
  
@@ -350,4 +404,5 @@ Finally, it all executes from a single function.
 I went through several different revisions of differing complexity before deciding on this.
 Deciding on how I wanted to structure my database was difficult as it is leveraged everywhere else and integral for functionality.
 '''
+
 selectionScreen()
