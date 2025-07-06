@@ -14,19 +14,17 @@ These inventory changes are then pushed to my Raspberry Pi Zero 2 W based Magic 
 Currently it only stores in memory but the entries can be copied to the clipboard and pasted elsewhere for long term storage.
 '''
 
-import sys, shutil, os
-
-primaryDict = {}
+import sys, os, json, pprint
 
 ###Global###
 from pathlib import Path
-# parentDir = Path.cwd()
-# subDir = os.mkdir(parentDir)
-# saveDir = Path(f"{parentDir}/'Saved Logs'")
 from datetime import date
 d = date.today()
 USYearMonth = d.strftime("%Y-%m")
-currentDay = d.strftime("%A")
+currentDay = d.strftime("%A %d")
+saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
+
+primaryDict = {}
 
 '''
 This is the selection screen where the user can choose from the 3 currently available features.
@@ -51,7 +49,7 @@ def selectionScreen():
                        ).lower()
 
         if choice == 'a':
-            createData()
+            createData(primaryDict)
         elif choice == 'd':
             deleteData(primaryDict)
         elif choice == 'p':
@@ -59,7 +57,7 @@ def selectionScreen():
         elif choice == 's':
             saveLog()
         elif choice == 'l':
-            loadLog(saveDir)
+            loadLog()
         elif choice == 'q':
             sys.exit("Goodbye! See you next time!")
         else:
@@ -73,7 +71,7 @@ This is done to ensure that duplicate entries are not overwritten.
 Each nested dictionary's key is based off of the overall entry, and the amount and optional units are values.
 '''
 
-def createData():
+def createData(primaryDict):
 
         logDict = {}
 
@@ -191,7 +189,7 @@ def printLog(primaryDict):
         print(f"{key}{sep}{value}")
         global printedLog
         printedLog = f"{key}{sep}{value}"
-    return
+    return 
 
 '''
 This is where users can delete their entries if they'd like.
@@ -202,7 +200,6 @@ Users can also back out of data deletion before it's completed.
 def deleteData(primaryDict):
 
     printLog(primaryDict)
-    print(printedLog)
 
     while True:
 
@@ -236,12 +233,10 @@ def deleteData(primaryDict):
             continue
 
 def saveLog():
-###check this one. new function###
 
     printLog(primaryDict)
 
     from pathlib import Path
-    global logFile, saveDir
     saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
     saveDir.mkdir(parents=True, exist_ok=True)
 
@@ -250,104 +245,78 @@ def saveLog():
                       \n[N]o \
                       \n").lower()
 
-    while True:
+
+    try:
         if saveInput == 'y':
             userLogName = input ("Use current day as the log name? \
-                                 \n[Y]es \
-                                 \n[N]o \
-                                 \n").lower()
+                                \n[Y]es \
+                                \n[N]o \
+                                \n").lower()
+            if userLogName == 'y':
+                fileName = currentDay
+                logFile = Path(saveDir / f"{fileName}.json")
+                with logFile.open('w') as ldf:
+                    json.dump(primaryDict, ldf, indent=4)
+                    pprint.pprint("Log saved as " f"{fileName} in {saveDir}"".")
+                if isinstance(logFile, dict):
+                    logFile.append(primaryDict)
             if userLogName == 'n':
                 userLogInput = input("Type what you would like to save this log as: \
-                               \n")
-                userLogFile = Path(saveDir / f"{userLogInput}.log")
-                if not os.path.exists(userLogFile):
-                    userLogFile.write_text(printedLog)
-                    print(f"Log saved as {userLogInput} in {saveDir}.")
-                if os.path.exists(userLogFile):
-                    with userLogFile.open('a', encoding="utf-8") as ufl:
-                        ufl.write(f"\n{printedLog}")
-                        print(f"Log ammended and saved as {userLogInput} in {saveDir}")
-                        ufl.close()
-                        break
-            if userLogName == 'y':
-                logDateName = {currentDay}
-                dateLogFile = Path(saveDir / f"{logDateName}.log")
-                print(f"Log saved as {dateLogFile} in {saveDir}.")
-                break
-        if saveInput == 'n':
-            print("Returning you to the selection screen.")
-            return
-        else:
-            print("Choice is invalid.")
-            
-    return saveDir, userLogFile
+                            \n")
+                fileName = userLogInput
+                logFile = Path(saveDir / f"{fileName}.json")
+                with logFile.open('w') as lnf:
+                        json.dump(primaryDict, lnf, indent=4)
+                        print(f"Log saved as {userLogInput} in {saveDir}.")
+            if saveInput == 'n':
+                print("Returning you to the selection screen.")
+                return
+    except FileNotFoundError:
+        ###fix this one, obviously###
+        print("Lemme figure this one out real quick.")
 
-def duplicateLogCheck(primaryDict, logDict, saveDir, userLogFile):
+        fileName = userLogInput, currentDay
+        logFile = Path(saveDir / f"{fileName}.json")
+        
+    
+    return saveDir, logFile
 
-    if os.path.exists(userLogFile):
-        with userLogFile.open() as 
+def loadLog():
 
-def loadLog(saveDir, logFile):
+    global primaryDict
+    
+    logFiles = list(saveDir.glob('*.json'))
+    sortedFiles = sorted(logFiles, key=os.path.getmtime)
+    ##consider adding pages for long lists of directories/files?##
+    ###lots of dirs/files will make for a long list###
 
+    if not logFiles:
+        print("No logs found")
+    print("Select a file to load: ")
     while True:
-        if logFile in saveDir:
-            break
-        else:
-            print("You do not have any entries to load.")
-            return
-    
-    loadInput = input("Select a log to load or go [b]ack to the selection screen: \
-                      \n")
-    
-    saveDir.glob('*.log')
-    logContents = list(saveDir.glob('*.log'))
-    print(logContents)
-    print(logFile)
-# def loadLog(saveDir, logFile):
-# ###check this one###
- 
-#     loadInput = input("Select a log to load or go [b]ack to selection screen: \
-#                       \n").lower()
-    
-#     from pathlib import Path
+        for index, file in enumerate(sortedFiles, 1):
+            print(f"[{index}] {file}")
 
-#     saveDir = Path(f"./Saved Logs/{logFile}")
-#     saveDir.glob('*.log')
-#     list(saveDir.glob('*.log'))
-#     logContents = logFile.read()
+        try:
+            loadInput = int(input("Enter the corresponding number of the log you would like to load: \
+                            \n"))
+            loadedFile = logFiles[loadInput - 1]
+            with loadedFile.open('r') as lf:
+                primaryDict = json.load(lf)
+                print(f"{primaryDict} loaded.")
+                return primaryDict
+        except FileNotFoundError:
+            print("Log not found. Please try again.")
+            continue
+        
+        return primaryDict
 
-#     while True:
-#         if loadInput == logFile:
-#             if logFile in saveDir:
-#                 confirm = input("Is this the correct log?: \
-#                                 \n[Y]es \
-#                                 \n[N]o \
-#                                 \n[B]ack \
-#                                 \n").lower()
-#                 ###maybe only print 5 at a time for long lists?###
-#                 # for i in logContents:
-#                 #     i = range(len(logContents)0, 5)
-#                 print(logContents)
-#                 if confirm == 'y':
-#                     open(logFile, 'a')
-#                     return logFile
-#                 if confirm == 'n':
-#                     break
-#                 if confirm == 'b':
-#                     return
-#                 else:
-#                     print("Invalid choice")
-#                     continue
-#             if logFile not in saveDir:
-#                 print(f"{loadInput} not found.")
-#                 break
-#         if loadInput == 'b':
-#             return
-#         else:
-#             print("Invalid choice")
+###create a delete file function###
+
 '''
 Finally, it all executes from a single function.
 I went through several different revisions of differing complexity before deciding on this.
 Deciding on how I wanted to structure my database was difficult as it is leveraged everywhere else and integral for functionality.
 '''
+
 selectionScreen()
