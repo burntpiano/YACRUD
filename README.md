@@ -23,6 +23,8 @@ That's the niche I was filling for myself. Displaying food inventory would reduc
 Realistically, the time saved vs time invested ratio is off; I do have a program that I built myself, for myself.
 
 This will, either in pieces or as a whole, serve as the backbone to other projects I have planned.
-This includes, but is not limited to
-A grocery store sales web scraper that calculates the unit price (if not provided) that saves as a JSON file type that I will push to my magic mirror to effortlessly hunt for the best sales.
-A personal movie database collection app that where you can track what movies you have, that can then recommend you movies from TMDB based on genre, runtime, actors/actresses/directors, etc and (possibly) show you sources that you can stream it from.
+This includes, but is not limited to:
+<ul>
+  <li>A grocery store sales web scraper that calculates the unit price (if not provided) that saves as a JSON file type that I will push to my magic mirror to effortlessly hunt for the best sales.</li>
+  <li>A personal movie database collection app that where you can track what movies you have, that can then recommend you movies from TMDB based on genre, runtime, actors/actresses/directors, etc and (possibly) show you sources that you can stream it from.</li>
+</ul>
