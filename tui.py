@@ -13,7 +13,7 @@ from rich.align import Align
 from rich.text import Text
 from rich import box
 
-import sys, logging, builtins, os
+import sys, os
 
 #Provides fallback for environments that support 256 color and ANSI escape code.
 FORCE_PLAIN = os.getenv("YACRUD_PLAIN", "0") == "1" or not sys.stdout.isatty()
@@ -25,8 +25,7 @@ styleDict = {
     "goodFeedback": "bold green",
     "badFeedback": "dim red",
     "panel": "dim cyan1",
-    "prompt": "dim green",
-    "log": "dim cyan"
+    "prompt": "dim green"
     }
 
 yacrudTheme = Theme(styleDict)
@@ -46,7 +45,7 @@ def safePrint(text, style=None):
 
 def safeInput(promptText="", style="prompt"):
     if FORCE_PLAIN:
-        input(promptText).lower()
+        return input(promptText).lower()
     else:
         console.print(promptText, style=style)
     return console.input().lower()

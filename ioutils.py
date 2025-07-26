@@ -5,7 +5,7 @@ This is done either by a default timestamp, or by user input.
 Everything was also refactored with the Entry class in mind.
 '''
 
-import utils, json, os, tui
+import utils, json, os, tui,re
 
 from pathlib import Path
 from datetime import date
@@ -14,7 +14,6 @@ from classes import Entry
 d = date.today()
 USYearMonth = d.strftime("%Y-%m")
 currentDay = d.strftime("%A %d")
-fullDate = d.strftime("%A %d %Y")
 saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
 
 '''
@@ -28,8 +27,6 @@ def saveLog(primaryDict, saveDir, currentDay, USYearMonth):
 
     utils.printLog(primaryDict)
 
-    from pathlib import Path
-    saveDir = (Path.cwd() / 'Saved Logs' / USYearMonth)
     saveDir.mkdir(parents=True, exist_ok=True)
 
     tui.panelMake("Save your log so far?: \
@@ -38,8 +35,6 @@ def saveLog(primaryDict, saveDir, currentDay, USYearMonth):
                     \n", title="Save Log")
     
     saveInput = input()
-
-###FIX FOR WINDOWS. WINDOWS CANNOT SAVE AS SPECIAL CHAR###
 
     if saveInput == 'y':
         tui.panelMake("Use the current day as the log name? \
@@ -51,12 +46,17 @@ def saveLog(primaryDict, saveDir, currentDay, USYearMonth):
         
         if chooseName == 'y':
             fileName = currentDay
-        if chooseName == 'n':
+        elif chooseName == 'n':
             tui.panelMake("What would you like to name your file? \
                                 \n", title="Choose Name") 
-            fileName = tui.safeInput("Enter your name here:")
+            fileName = tui.safeInput("Enter your name here:").strip()
+            if not fileName:
+                tui.safePrint("File name cannot be empty, returning you to the main screen.", style="err")
+                return
+        #WinAPI uses specific naming conventions that differ from systems that use POSIX. This prevents crashes/corrupted files from user input.
+        fileName = re.sub(r'[\\/*?:"<>|]', '_', fileName)
+        filePath = Path(saveDir / f"{fileName}.json")
         try:
-            filePath = Path(saveDir / f"{fileName}.json")
             saveDict = {k: v.save() for k, v in primaryDict.items()}
 #The file is opened, info from the primary dictionary is written, and user is given feedback. If any operating system issue arises, then it is handled
             with filePath.open('w') as lf:
@@ -75,7 +75,7 @@ def saveLog(primaryDict, saveDir, currentDay, USYearMonth):
 
 
 '''
-Users can load their previously saved files to print in terminal or make ammendments to.
+Users can load their previously saved files to print in terminal or make amendments to.
 They are presented with the files they have already saved to reduce any confusion.
 The printed files are sorted by modified date.
 '''
@@ -86,7 +86,6 @@ def loadLog(primaryDict, saveDir):
 
     if not filePath:
         tui.safePrint("No logs found", style="prompt")
-        tui.safeInput("Select a file to load: ", style="prompt")
         return
 
     while True:
@@ -94,18 +93,17 @@ def loadLog(primaryDict, saveDir):
             tui.safePrint(f"[{index}] {file.name}", style="goodFeedback")
 
         try:
-            tui.safePrint("Enter the corresponding number of the log you would like to load: \
-                            \n", style="prompt")
+            tui.safePrint("Enter the corresponding number of the log you would like to load: ", style="prompt")
             loadInput = int(input())
-            loadedFile = filePath[loadInput -1]
+            loadedFile = sortedFiles[loadInput - 1]
             with loadedFile.open('r') as lf:
                 data = json.load(lf)
-                #This single line is one of the most important lines in this block as it ensures that the user isn't unintentially ammending a previous loaded log onto their newly loaded log.
+                #This single line is one of the most important lines in this block as it ensures that the user isn't unintentionally concatenating a previously loaded log onto their newly loaded log.
                 primaryDict.clear()
                 for k, v in data.items():
                     primaryDict[k] = Entry(k, v["Amount Logged"], v["Measurement Unit"])
-                    tui.safePrint(f"{loadedFile.name} loaded", style="goodFeedback")
-                    utils.log.debug(f"User loaded file {loadedFile}.json")
+            tui.safePrint(f"{loadedFile.name} loaded", style="goodFeedback")
+            utils.log.debug(f"User loaded file {loadedFile}.json")
         except (ValueError, IndexError):
             utils.log.warning("Log not found. Please try again")
             continue
