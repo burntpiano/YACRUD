@@ -1,18 +1,10 @@
 # YACRUD
 Yet Another CRUD
 
-~This was written and debugged in a Linux environment with Python version 3.11.X.
+⚠This was written and debugged in a Linux environment with Python version 3.11.X.
 Terminal environment supported 256 color and ANSI escape character codes.
 Rich module is needed to run.
-A requirements text file is included for those who need Python virtual environments.~
-
-<figure>
-  <center>
-    <img width="921" height="293" alt="image" src="https://github.com/user-attachments/assets/b19cf134-e57a-48f1-b08a-7069194f715f" />
-    <figcaption>The beautiful power of the rich module.</figcaption>
-    <figcaption><small>I really love TUIs</small></figcaption>
-  </center>
-</figure>
+A requirements text file is included for those who need Python virtual environments.⚠
 
 This was a small program I wrote for my Intro to Python class at FHSU. It solved a non-issue problem I have in my household:
 Inventory management.
