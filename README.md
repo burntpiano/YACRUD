@@ -1,11 +1,34 @@
 # YACRUD
 Yet Another CRUD
 
-Making/made this for my first programming with Python class in Summer 2025 for the midterm project.
-Really got tired of transferring via Discord a "WIP" and "Working" snapshot between my desktop and my laptop. I guess now is better than ever to learn Github after using it to clone repos for 5+ years.
-
-This isn't anything serious or huge, but it does solve a personal problem of needing a lightweight CRUD for food/misc inventory management to display on my Magic Mirror.
-
-This was written and debugged in a Linux environment with Python version 3.11.X.
+~This was written and debugged in a Linux environment with Python version 3.11.X.
 Terminal environment supported 256 color and ANSI escape character codes.
 Rich module is needed to run.
+A requirements text file is included for those who need Python virtual environments.~
+
+<figure>
+  <center>
+    <img width="921" height="293" alt="image" src="https://github.com/user-attachments/assets/b19cf134-e57a-48f1-b08a-7069194f715f" />
+    <figcaption>The beautiful power of the rich module.</figcaption>
+    <figcaption><small>I really love TUIs</small></figcaption>
+  </center>
+</figure>
+
+This was a small program I wrote for my Intro to Python class at FHSU. It solved a non-issue problem I have in my household:
+Inventory management.
+Why inventory management?
+Because I have too much stuff.
+Computer parts, computers, tablets, etc.
+Even frozen food igredients.
+While I might know where everything is, what I don't know, is how many things.
+I built YACRUD for that reason. Because it's hard to keep count of things.
+
+Now, I didn't stop there. I could have just left it at inventory management, but what about inventory *display?*
+The "database" files are simple JSON files that can be pushed (via scp, rysnc, or whatever) over a local network to a Magic Mirror.
+That's the niche I was filling for myself. Displaying food inventory would reduce the time my wife and I spend thinking about what to have for dinner, or making shopping lists.
+Realistically, the time saved vs time invested ratio is off; I do have a program that I built myself, for myself.
+
+This will, either in pieces or as a whole, serve as the backbone to other projects I have planned.
+This includes, but is not limited to
+A grocery store sales web scraper that calculates the unit price (if not provided) that saves as a JSON file type that I will push to my magic mirror to effortlessly hunt for the best sales.
+A personal movie database collection app that where you can track what movies you have, that can then recommend you movies from TMDB based on genre, runtime, actors/actresses/directors, etc and (possibly) show you sources that you can stream it from.
