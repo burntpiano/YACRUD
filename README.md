@@ -6,6 +6,8 @@ Terminal environment supported 256 color and ANSI escape character codes.
 Rich module is needed to run.
 A requirements text file is included for those who need Python virtual environments.⚠
 
+<img width="885" height="308" alt="image" src="https://github.com/user-attachments/assets/b6b907c7-756f-46d9-91c1-50a5f7520637" />
+
 This was a small program I wrote for my Intro to Python class at FHSU. It solved a non-issue problem I have in my household:
 Inventory management.
 Why inventory management?
